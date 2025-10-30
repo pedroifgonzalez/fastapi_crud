@@ -11,7 +11,7 @@ Project structure
 The app structure was designed to keep it simple, however organized.
 
 - The expected configuration to run the app properly is expected to be
-in the `code` folder, which also expects any security and middleware layers.
+in the `core` folder, which also expects any security and middleware layers.
 - The `models` folder contains all the model definitions the app uses.
 - Within the `routers` folders live all the router modules per domain.
 - The `schemas` folder will handle the input and output data, including
