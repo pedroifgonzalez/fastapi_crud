@@ -56,12 +56,12 @@ class BaseService(Generic[T]):
             raise ServiceException(NOT_FOUND_ERROR.format(self.model_name, id))
         return db_record
 
-    async def create(self, data: dict[str, Any]) -> T:
+    async def create(self, data: dict[str, Any], eager_load: bool = True) -> T:
         record = self.model(**data)
         self.db.add(record)
         await self.db.commit()
         await self.db.refresh(record)
-        return record
+        return await self.find_one(id=record.id, eager_load=eager_load)  # type: ignore
 
     async def update(self, id: int, data: dict[str, Any]) -> T:
         db_record = await self.find_one(id=id, eager_load=False)

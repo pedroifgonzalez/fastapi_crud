@@ -45,6 +45,4 @@ repos:
           - fastapi
           - alembic>=1.12
           - types-requests
-        args:
-          - --strict
-          - --ignore-missing-imports
+        args: ["--config-file=pyproject.toml"]
