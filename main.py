@@ -1,6 +1,7 @@
-def main():
-    print("Hello from fastapi-crud!")
+from fastapi import FastAPI
 
+from app.routers.posts import router as posts_router
 
-if __name__ == "__main__":
-    main()
+app = FastAPI()
+
+app.include_router(posts_router, prefix="/posts", tags=["Posts"])
