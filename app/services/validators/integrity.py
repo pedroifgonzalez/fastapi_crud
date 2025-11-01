@@ -1,9 +1,11 @@
 from dataclasses import dataclass
 from typing import Any, Iterable, Sequence
 
+from fastapi import status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
+from app.core.exceptions import AppException
 from app.models.tag import Tag
 from app.models.user import User
 from app.utils.constants import NOT_FOUND_ERROR
@@ -16,7 +18,7 @@ class Relation:
     is_multiple: bool
 
 
-class IntegrityValidatorException(Exception):
+class IntegrityValidatorException(AppException):
     pass
 
 
@@ -36,7 +38,8 @@ class BaseIntegrityValidator:
             if relation.is_multiple:
                 if not isinstance(value, Iterable):
                     raise IntegrityValidatorException(
-                        f"Expected iterable for field '{field_name}'"
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail=f"Expected iterable for field '{field_name}'",
                     )
                 ids: Sequence[int] = list(value)
                 if not ids:
@@ -48,7 +51,10 @@ class BaseIntegrityValidator:
                 missing = set(ids) - existing_ids
                 if missing:
                     raise IntegrityValidatorException(
-                        NOT_FOUND_ERROR.format(relation.model.__name__, missing.pop())
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=NOT_FOUND_ERROR.format(
+                            relation.model.__name__, missing.pop()
+                        ),
                     )
             else:
                 stmt = select(relation.model.id).where(relation.model.id == value)
@@ -56,7 +62,8 @@ class BaseIntegrityValidator:
                 exists = result.scalar()
                 if not exists:
                     raise IntegrityValidatorException(
-                        NOT_FOUND_ERROR.format(relation.model.__name__, value)
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail=NOT_FOUND_ERROR.format(relation.model.__name__, value),
                     )
 
         return data

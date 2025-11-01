@@ -60,4 +60,4 @@ async def test_non_existent(db, test_post):
     comment_service = CommentService(db=db)
     with pytest.raises(ServiceException) as exc:
         await comment_service.find_one(id=999)
-    assert str(exc.value) == "Comment with id 999 not found"
+    assert str(exc.value) == "404: Comment with id 999 not found"

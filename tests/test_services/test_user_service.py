@@ -62,4 +62,4 @@ async def test_non_existent(db, test_post):
     user_service = UserService(db=db)
     with pytest.raises(ServiceException) as exc:
         await user_service.find_one(id=999)
-    assert str(exc.value) == "User with id 999 not found"
+    assert str(exc.value) == "404: User with id 999 not found"

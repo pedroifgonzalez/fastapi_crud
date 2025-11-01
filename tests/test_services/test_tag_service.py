@@ -60,4 +60,4 @@ async def test_non_existent(db, test_post):
     tag_service = TagsService(db=db)
     with pytest.raises(ServiceException) as exc:
         await tag_service.find_one(id=999)
-    assert str(exc.value) == "Tag with id 999 not found"
+    assert str(exc.value) == "404: Tag with id 999 not found"

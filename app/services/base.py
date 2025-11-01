@@ -1,17 +1,19 @@
 from typing import Any, Generic, Type, TypeVar
 
+from fastapi import status
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql.expression import Select
 
+from app.core.exceptions import AppException
 from app.models.base import Base
 from app.utils.constants import NOT_FOUND_ERROR
 
 T = TypeVar("T", bound=Base)
 
 
-class ServiceException(Exception):
+class ServiceException(AppException):
     pass
 
 
@@ -53,7 +55,10 @@ class BaseService(Generic[T]):
             db_record = await self.db.get(self.model, id)
 
         if not db_record:
-            raise ServiceException(NOT_FOUND_ERROR.format(self.model_name, id))
+            raise ServiceException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=NOT_FOUND_ERROR.format(self.model_name, id),
+            )
         return db_record
 
     async def create(self, data: dict[str, Any], eager_load: bool = True) -> T:
@@ -64,12 +69,14 @@ class BaseService(Generic[T]):
         return await self.find_one(id=record.id, eager_load=eager_load)  # type: ignore
 
     async def update(self, id: int, data: dict[str, Any]) -> T:
-        db_record = await self.find_one(id=id, eager_load=False)
+        db_record = await self.find_one(id=id)
 
-        stmt = update(self.model).where(self.model.id == db_record.id).values(**data)  # type: ignore
-        await self.db.execute(stmt)
+        for field, value in data.items():
+            if hasattr(db_record, field):
+                setattr(db_record, field, value)
+
+        await self.db.flush()
         await self.db.commit()
-
         return await self.find_one(id=id)
 
     async def delete(self, id: int) -> None:

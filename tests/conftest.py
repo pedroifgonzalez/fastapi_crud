@@ -3,7 +3,13 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from app.core.config import settings
 from app.models.base import metadata
-from tests.fixtures import test_comment, test_post, test_tag, test_user
+from tests.fixtures import (
+    test_comment,
+    test_deleted_post,
+    test_post,
+    test_tag,
+    test_user,
+)
 
 
 @pytest.fixture(scope="function")
@@ -29,4 +35,4 @@ async def db(engine):
         await session.rollback()
 
 
-__all__ = ["test_user", "test_post", "test_tag", "test_comment"]
+__all__ = ["test_user", "test_post", "test_tag", "test_comment", "test_deleted_post"]

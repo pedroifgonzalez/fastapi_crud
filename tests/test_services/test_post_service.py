@@ -65,4 +65,4 @@ async def test_non_existent(db, test_post):
     post_service = PostService(db=db)
     with pytest.raises(ServiceException) as exc:
         await post_service.find_one(id=999)
-    assert str(exc.value) == "Post with id 999 not found"
+    assert str(exc.value) == "404: Post with id 999 not found"
