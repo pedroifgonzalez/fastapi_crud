@@ -7,6 +7,7 @@ from app.services.validators.integrity import (
     CommentIntegrityValidator,
     PostIntegrityValidator,
 )
+from app.services.validators.passwords import PasswordValidator
 
 
 def get_post_integrity_validator(
@@ -21,5 +22,9 @@ def get_comment_integrity_validator(
     return CommentIntegrityValidator(db=db)
 
 
-def get_business_validator() -> BaseBusinessValidator:
-    return BaseBusinessValidator()
+def get_business_validator(db: AsyncSession = Depends(get_db)) -> BaseBusinessValidator:
+    return BaseBusinessValidator(db=db)
+
+
+def get_password_validator() -> PasswordValidator:
+    return PasswordValidator()

@@ -1,7 +1,13 @@
+from typing import Optional
+
+from fastapi import status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import AppException
 from app.models.user import User
-from app.services.base import BaseService
+from app.services.base import BaseService, ServiceException
+from app.utils.constants import NOT_FOUND_ERROR
 
 
 class UserService(BaseService[User]):
@@ -10,3 +16,16 @@ class UserService(BaseService[User]):
 
     def __init__(self, db: AsyncSession):
         super().__init__(db, User)
+
+    async def find_by_email(
+        self, email: str, raise_custom: Optional[AppException] = None
+    ) -> User:
+        stmt = select(User).where(User.email == email)
+        result = await self.db.execute(stmt)
+        db_record = result.scalar_one_or_none()
+        if not db_record:
+            raise raise_custom or ServiceException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=NOT_FOUND_ERROR.format(self.model_name, id),
+            )
+        return db_record

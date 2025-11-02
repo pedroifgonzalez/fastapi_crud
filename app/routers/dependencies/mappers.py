@@ -1,5 +1,6 @@
 from fastapi import Depends
 
+from app.core.mappers.auth import AuthMapper
 from app.core.mappers.comments import CommentMapper
 from app.core.mappers.posts import PostMapper
 from app.core.mappers.tags import TagMapper
@@ -25,3 +26,7 @@ def get_user_mapper(
     password_converter: PasswordConverter = Depends(get_password_converter),
 ) -> UserMapper:
     return UserMapper(password_converter=password_converter)
+
+
+def get_auth_mapper() -> AuthMapper:
+    return AuthMapper()

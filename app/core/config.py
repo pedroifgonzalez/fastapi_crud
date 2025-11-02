@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     """Application settings loaded from env variables"""
 
     DATABASE_URL: str
+    SECRET_KEY: str
+    ALGORITHM: str
+    ACCESS_TOKEN_EXPIRE_MINUTES: int
 
 
 settings = Settings()  # type: ignore
