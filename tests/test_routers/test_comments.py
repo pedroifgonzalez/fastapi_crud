@@ -57,8 +57,14 @@ async def test_comments_router_find_one(async_client, comment_id, expected_statu
         ),
     ],
 )
-async def test_comments_router_create(async_client, data, expected_status):
-    response = await async_client.post(f"{COMMENTS_BASE_URL}/", json=data)
+async def test_comments_router_create(
+    async_client, data, expected_status, generate_test_token
+):
+    response = await async_client.post(
+        f"{COMMENTS_BASE_URL}/",
+        json=data,
+        headers={"Authorization": f"Bearer {generate_test_token}"},
+    )
     assert response.status_code == expected_status
 
 
@@ -88,8 +94,14 @@ async def test_comments_router_create(async_client, data, expected_status):
         ),
     ],
 )
-async def test_comments_router_update(async_client, comment_id, data, expected_status):
-    response = await async_client.put(f"{COMMENTS_BASE_URL}/{comment_id}", json=data)
+async def test_comments_router_update(
+    async_client, comment_id, data, expected_status, generate_test_token
+):
+    response = await async_client.put(
+        f"{COMMENTS_BASE_URL}/{comment_id}",
+        json=data,
+        headers={"Authorization": f"Bearer {generate_test_token}"},
+    )
     assert response.status_code == expected_status
 
 
@@ -102,6 +114,11 @@ async def test_comments_router_update(async_client, comment_id, data, expected_s
         (999, 404),  # non-existent comment
     ],
 )
-async def test_comments_router_delete(async_client, comment_id, expected_status):
-    response = await async_client.delete(f"{COMMENTS_BASE_URL}/{comment_id}")
+async def test_comments_router_delete(
+    async_client, comment_id, expected_status, generate_test_token
+):
+    response = await async_client.delete(
+        f"{COMMENTS_BASE_URL}/{comment_id}",
+        headers={"Authorization": f"Bearer {generate_test_token}"},
+    )
     assert response.status_code == expected_status

@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends
 
 from app.core.mappers.posts import PostMapper
+from app.models.user import User
 from app.routers.dependencies import (
     get_business_validator,
+    get_current_user,
     get_post_integrity_validator,
     get_post_mapper,
     get_post_service,
@@ -43,6 +45,7 @@ async def create_post(
     service: PostService = Depends(get_post_service),
     mapper: PostMapper = Depends(get_post_mapper),
     integrity_validator: PostIntegrityValidator = Depends(get_post_integrity_validator),
+    _: User = Depends(get_current_user),
 ) -> PostOut:
     await integrity_validator.validate(data.model_dump())
     domain_data = await mapper.to_domain(data)
@@ -57,6 +60,7 @@ async def update_post(
     service: PostService = Depends(get_post_service),
     mapper: PostMapper = Depends(get_post_mapper),
     integrity_validator: PostIntegrityValidator = Depends(get_post_integrity_validator),
+    _: User = Depends(get_current_user),
 ) -> PostOut:
     await integrity_validator.validate(data.model_dump())
     domain_data = await mapper.to_domain(data=data)
@@ -66,6 +70,8 @@ async def update_post(
 
 @router.delete("/{id}")
 async def delete_post(
-    id: int, service: PostService = Depends(get_post_service)
+    id: int,
+    service: PostService = Depends(get_post_service),
+    _: User = Depends(get_current_user),
 ) -> None:
     return await service.delete(id=id)

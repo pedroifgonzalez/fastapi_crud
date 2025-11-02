@@ -6,13 +6,13 @@ from fastapi.security import OAuth2PasswordRequestForm
 from app.core.exceptions import AppException
 from app.core.mappers.auth import AuthMapper
 from app.core.mappers.users import UserMapper
-from app.core.security.tokens import TokenGenerator
+from app.core.security.tokens import TokenManager
 from app.models.user import User
 from app.routers.dependencies import (
     get_auth_mapper,
     get_business_validator,
     get_password_validator,
-    get_token_generator,
+    get_token_manager,
     get_user_mapper,
     get_user_service,
 )
@@ -46,7 +46,7 @@ async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     mapper: AuthMapper = Depends(get_auth_mapper),
     service: UserService = Depends(get_user_service),
-    token_generator: TokenGenerator = Depends(get_token_generator),
+    token_manager: TokenManager = Depends(get_token_manager),
     password_validator: PasswordValidator = Depends(get_password_validator),
 ) -> AccessToken:
     domain_data = await mapper.to_domain(form_data=form_data)
@@ -60,7 +60,5 @@ async def login(
     password_validator.validate(
         password=domain_data["password"], hashed_password=db_record.hashed_password
     )
-    token, token_type = token_generator.generate_access_token(
-        data=domain_data["encode"]
-    )
+    token, token_type = token_manager.generate_access_token(data=domain_data["encode"])
     return mapper.to_output(token=token, token_type=token_type)

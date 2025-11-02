@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends
 
 from app.core.mappers.comments import CommentMapper
+from app.models.user import User
 from app.routers.dependencies import (
     get_business_validator,
     get_comment_integrity_validator,
     get_comment_mapper,
     get_comment_service,
+    get_current_user,
 )
 from app.schemas.comment import CommentIn, CommentOut, CommentUpdate
 from app.services.comments import CommentService
@@ -45,6 +47,7 @@ async def create_comment(
     integrity_validator: CommentIntegrityValidator = Depends(
         get_comment_integrity_validator
     ),
+    _: User = Depends(get_current_user),
 ) -> CommentOut:
     await integrity_validator.validate(data.model_dump())
     domain_data = await mapper.to_domain(data)
@@ -61,6 +64,7 @@ async def update_comment(
     integrity_validator: CommentIntegrityValidator = Depends(
         get_comment_integrity_validator
     ),
+    _: User = Depends(get_current_user),
 ) -> CommentOut:
     await integrity_validator.validate(data.model_dump())
     domain_data = await mapper.to_domain(data=data)
@@ -70,6 +74,8 @@ async def update_comment(
 
 @router.delete("/{id}")
 async def delete_comment(
-    id: int, service: CommentService = Depends(get_comment_service)
+    id: int,
+    service: CommentService = Depends(get_comment_service),
+    _: User = Depends(get_current_user),
 ) -> None:
     return await service.delete(id=id)
