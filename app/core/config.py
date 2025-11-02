@@ -1,4 +1,17 @@
+import sys
+
+from loguru import logger
 from pydantic_settings import BaseSettings
+
+logger.remove()
+logger.add(
+    sys.stdout,
+    colorize=True,
+    format="<level>{level}</level>:     <level>{message}</level>",
+    enqueue=True,
+    backtrace=False,
+    diagnose=False,
+)
 
 
 class Settings(BaseSettings):
