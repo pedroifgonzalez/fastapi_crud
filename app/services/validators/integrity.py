@@ -75,3 +75,10 @@ class PostIntegrityValidator(BaseIntegrityValidator):
         Relation(field="tags_ids", model=Tag, is_multiple=True),
         Relation(field="user_id", model=User, is_multiple=False),
     ]
+
+
+class CommentIntegrityValidator(BaseIntegrityValidator):
+
+    relations = [
+        Relation(field="user_id", model=User, is_multiple=False),
+    ]

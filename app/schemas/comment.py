@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 from app.utils.validators import NonEmptyString
@@ -10,6 +12,12 @@ class CommentBase(BaseModel):
 
 class CommentIn(CommentBase):
     pass
+
+
+class CommentUpdate(BaseModel):
+    content: Optional[NonEmptyString] = Field(
+        None, description="Comment's content", min_length=10
+    )
 
 
 class CommentOut(CommentBase):

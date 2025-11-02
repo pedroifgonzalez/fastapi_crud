@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Depends
 
 from app.core.mappers.tags import TagMapper
-from app.routers.dependencies.mappers import get_tag_mapper
-from app.routers.dependencies.services import get_tag_service
-from app.routers.dependencies.validators import get_business_validator
+from app.routers.dependencies import (
+    get_business_validator,
+    get_tag_mapper,
+    get_tag_service,
+)
 from app.schemas.tag import TagIn, TagOut, TagUpdate
 from app.services.tags import TagsService
 from app.services.validators.business import BaseBusinessValidator

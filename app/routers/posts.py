@@ -2,11 +2,11 @@ from fastapi import APIRouter, Depends
 
 from app.core.mappers.posts import PostMapper
 from app.routers.dependencies import (
+    get_business_validator,
     get_post_integrity_validator,
     get_post_mapper,
     get_post_service,
 )
-from app.routers.dependencies.validators import get_business_validator
 from app.schemas.post import PostIn, PostOut, PostUpdate
 from app.services.posts import PostService
 from app.services.validators.business import BaseBusinessValidator

@@ -5,6 +5,7 @@ from app.core.config import settings
 from app.models.base import metadata
 from tests.fixtures import (
     test_comment,
+    test_deleted_comment,
     test_deleted_post,
     test_deleted_tag,
     test_post,
@@ -43,4 +44,5 @@ __all__ = [
     "test_deleted_tag",
     "test_comment",
     "test_deleted_post",
+    "test_deleted_comment",
 ]

@@ -15,7 +15,7 @@ async def test_post(db, test_user):
 @pytest.fixture(scope="function")
 async def test_deleted_post(db, test_user):
     post_record = Post(
-        id=10, content="This is a test post", user=test_user, is_deleted=True
+        id=10, content="This is a deleted post", user=test_user, is_deleted=True
     )
     db.add(post_record)
     await db.commit()
