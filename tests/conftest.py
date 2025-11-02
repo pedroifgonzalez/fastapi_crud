@@ -6,6 +6,7 @@ from app.models.base import metadata
 from tests.fixtures import (
     test_comment,
     test_deleted_post,
+    test_deleted_tag,
     test_post,
     test_tag,
     test_user,
@@ -35,4 +36,11 @@ async def db(engine):
         await session.rollback()
 
 
-__all__ = ["test_user", "test_post", "test_tag", "test_comment", "test_deleted_post"]
+__all__ = [
+    "test_user",
+    "test_post",
+    "test_tag",
+    "test_deleted_tag",
+    "test_comment",
+    "test_deleted_post",
+]

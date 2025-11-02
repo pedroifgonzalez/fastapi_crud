@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 from app.utils.validators import NonEmptyString
@@ -9,6 +11,10 @@ class TagBase(BaseModel):
 
 class TagIn(TagBase):
     pass
+
+
+class TagUpdate(BaseModel):
+    name: Optional[NonEmptyString] = Field(None, description="Tag's name", min_length=3)
 
 
 class TagOut(TagBase):
