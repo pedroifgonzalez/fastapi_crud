@@ -1,8 +1,14 @@
-from pydantic import BaseModel, EmailStr, Field
+import re
+
+from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from app.schemas.comment import CommentOut
 from app.schemas.post import PostOut
 from app.utils.validators import NonEmptyString
+
+PASSWORD_REGEX = re.compile(
+    r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+)
 
 
 class UserBase(BaseModel):
@@ -11,7 +17,15 @@ class UserBase(BaseModel):
 
 
 class UserIn(UserBase):
-    pass
+    password: str = Field(description="User's password")
+
+    @field_validator("password")
+    def validate_password(cls, v: str) -> str:
+        if not PASSWORD_REGEX.match(v):
+            raise ValueError(
+                "Password must contain at least 8 characters, including uppercase, lowercase, digit, and special symbol."
+            )
+        return v
 
 
 class UserOut(UserBase):

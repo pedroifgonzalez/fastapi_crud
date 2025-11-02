@@ -8,6 +8,7 @@ async def test_user(db):
     user_record = User(
         name="Jane Smith",
         email="janesmith@gmail.com",
+        hashed_password="testpaswordhashed",
     )
     db.add(user_record)
     await db.commit()

@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request, Response
 from loguru import logger
 from typing_extensions import Callable
 
+from app.routers.auth import router as auth_router
 from app.routers.comments import router as comments_router
 from app.routers.posts import router as posts_router
 from app.routers.tags import router as tags_router
@@ -23,3 +24,4 @@ async def add_requests_process_time(request: Request, call_next: Callable) -> Re
 app.include_router(posts_router, prefix="/posts", tags=["Posts"])
 app.include_router(tags_router, prefix="/tags", tags=["Tags"])
 app.include_router(comments_router, prefix="/comments", tags=["Comments"])
+app.include_router(auth_router, prefix="/auth", tags=["Auth"])

@@ -12,6 +12,7 @@ async def test_create(db):
     data = {
         "name": "John Smith",
         "email": "johnsmith@gmail.com",
+        "hashed_password": "testpaswordhashed",
     }
     record = await user_service.create(data=data)
 
