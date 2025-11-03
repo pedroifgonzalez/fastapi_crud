@@ -1,0 +1,9 @@
+from sqlalchemy import Select
+
+
+class UserScopedServiceMixin:
+    async def _apply_user_scope(self, stmt: Select, user_id: int) -> Select:
+        model = stmt.column_descriptions[0]["entity"]
+        if hasattr(model, "user_id"):
+            stmt = stmt.where(model.user_id == user_id)
+        return stmt

@@ -18,3 +18,16 @@ async def test_user(db):
     await db.commit()
     await db.refresh(user_record)
     yield user_record
+
+
+@pytest.fixture(scope="function")
+async def test_user_2(db):
+    user_2_record = User(
+        name="Ethan Smith",
+        email="ethansmith@gmail.com",
+        hashed_password=PASSWORD_HASHED,
+    )
+    db.add(user_2_record)
+    await db.commit()
+    await db.refresh(user_2_record)
+    yield user_2_record

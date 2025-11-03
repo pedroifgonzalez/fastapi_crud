@@ -78,7 +78,7 @@ async def test_posts_router_create(
     assert response.status_code == expected_status
 
 
-@pytest.mark.usefixtures("test_post", "test_tag")
+@pytest.mark.usefixtures("test_post", "test_post_2", "test_tag")
 @pytest.mark.parametrize(
     "post_id,data,expected_status",
     [
@@ -108,6 +108,20 @@ async def test_posts_router_create(
             },
             404,
         ),
+        (
+            2,  # non-owner post
+            {
+                "tags_ids": [1],
+            },
+            404,
+        ),
+    ],
+    ids=[
+        "Update content",
+        "Update tags",
+        "Non-existent tag",
+        "Non-existent post",
+        "Non-owner post",
     ],
 )
 async def test_posts_router_update(
@@ -121,13 +135,14 @@ async def test_posts_router_update(
     assert response.status_code == expected_status
 
 
-@pytest.mark.usefixtures("test_post", "test_deleted_post")
+@pytest.mark.usefixtures("test_post", "test_deleted_post", "test_post_2")
 @pytest.mark.parametrize(
     "post_id,expected_status",
     [
         (1, 200),
         (10, 200),
         (999, 404),  # non-existent post
+        (2, 404),  # non-owner post
     ],
 )
 async def test_posts_router_delete(

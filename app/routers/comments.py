@@ -68,11 +68,11 @@ async def update_comment(
     integrity_validator: CommentIntegrityValidator = Depends(
         get_comment_integrity_validator
     ),
-    _: User = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ) -> CommentOut:
     await integrity_validator.validate(data.model_dump())
     domain_data = await mapper.to_domain(data=data)
-    db_record = await service.update(id=id, data=domain_data)
+    db_record = await service.update_for_user(id=id, user_id=user.id, data=domain_data)
     return mapper.to_output(db_record=db_record)
 
 
@@ -80,6 +80,6 @@ async def update_comment(
 async def delete_comment(
     id: int,
     service: CommentService = Depends(get_comment_service),
-    _: User = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ) -> None:
-    return await service.delete(id=id)
+    return await service.delete_for_user(id=id, user_id=user.id)

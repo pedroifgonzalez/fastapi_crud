@@ -93,7 +93,7 @@ async def test_comments_router_create(
     assert response.status_code == expected_status
 
 
-@pytest.mark.usefixtures("test_comment")
+@pytest.mark.usefixtures("test_comment", "test_comment_2")
 @pytest.mark.parametrize(
     "comment_id,data,expected_status",
     [
@@ -113,10 +113,22 @@ async def test_comments_router_create(
             1,
             {
                 "content": "  ",  # empty string
-                "user_id": 1,
             },
             422,
         ),
+        (
+            2,
+            {
+                "content": "A new comment",  # non-owner comment
+            },
+            404,
+        ),
+    ],
+    ids=[
+        "Valid update",
+        "Non-existent comment",
+        "Empty content",
+        "Non-owner comment",
     ],
 )
 async def test_comments_router_update(
@@ -130,13 +142,14 @@ async def test_comments_router_update(
     assert response.status_code == expected_status
 
 
-@pytest.mark.usefixtures("test_comment", "test_deleted_comment")
+@pytest.mark.usefixtures("test_comment", "test_deleted_comment", "test_comment_2")
 @pytest.mark.parametrize(
     "comment_id,expected_status",
     [
         (1, 200),
         (10, 200),
         (999, 404),  # non-existent comment
+        (2, 404),  # non-owner comment
     ],
 )
 async def test_comments_router_delete(

@@ -5,12 +5,15 @@ from app.core.config import settings
 from app.models.base import metadata
 from tests.fixtures import (
     test_comment,
+    test_comment_2,
     test_deleted_comment,
     test_deleted_post,
     test_deleted_tag,
     test_post,
+    test_post_2,
     test_tag,
     test_user,
+    test_user_2,
 )
 
 
@@ -39,10 +42,13 @@ async def db(engine):
 
 __all__ = [
     "test_user",
+    "test_user_2",
     "test_post",
+    "test_post_2",
     "test_tag",
     "test_deleted_tag",
     "test_comment",
     "test_deleted_post",
     "test_deleted_comment",
+    "test_comment_2",
 ]

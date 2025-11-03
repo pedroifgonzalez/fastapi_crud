@@ -2,6 +2,7 @@ from typing import Any, Generic, Type, TypeVar
 
 from fastapi import status
 from sqlalchemy import select, update
+from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import func
@@ -38,6 +39,17 @@ class BaseService(Generic[T]):
 
         return stmt
 
+    async def _get_select_with_pagination(
+        self, stmt: Select, pagination: PaginationParams
+    ) -> tuple[Result[tuple[T]], Optional[int]]:
+        total = await self.db.scalar(select(func.count()).select_from(stmt.subquery()))
+        result = await self.db.execute(
+            stmt.limit(pagination.page_size).offset(
+                (pagination.page - 1) * pagination.page_size
+            )
+        )
+        return result, total
+
     async def find_all(
         self, eager_load: bool = True, pagination: Optional[PaginationParams] = None
     ) -> tuple[list[T], int]:
@@ -49,13 +61,8 @@ class BaseService(Generic[T]):
 
         total = None
         if pagination:
-            total = await self.db.scalar(
-                select(func.count()).select_from(stmt.subquery())
-            )
-            result = await self.db.execute(
-                stmt.limit(pagination.page_size).offset(
-                    (pagination.page - 1) * pagination.page_size
-                )
+            result, total = await self._get_select_with_pagination(
+                stmt=stmt, pagination=pagination
             )
         else:
             result = await self.db.execute(stmt)
