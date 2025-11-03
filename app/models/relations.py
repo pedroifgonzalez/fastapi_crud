@@ -19,3 +19,7 @@ User.comments = relationship(
     "Comment", back_populates="user", cascade="all, delete-orphan"
 )
 Comment.user = relationship("User", back_populates="comments")
+Post.comments = relationship(
+    "Comment", back_populates="post", cascade="all, delete-orphan"
+)
+Comment.post = relationship("Post", back_populates="comments")

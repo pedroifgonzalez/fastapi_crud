@@ -8,6 +8,7 @@ from app.utils.validators import NonEmptyString
 class CommentBase(BaseModel):
     content: NonEmptyString = Field(description="Comment's content", min_length=10)
     user_id: int = Field(description="User, author of the comment")
+    post_id: int = Field(description="Post to be commented on")
 
 
 class CommentIn(CommentBase):

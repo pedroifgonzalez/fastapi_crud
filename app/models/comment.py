@@ -21,3 +21,14 @@ class Comment(Base, TimestampMixin, SoftDeleteMixin):
         nullable=False,
         index=True,
     )
+    post_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey(
+            "posts.id",
+            ondelete="CASCADE",
+            onupdate="CASCADE",
+            name="fk_comments_post_id_posts",
+        ),
+        nullable=False,
+        index=True,
+    )

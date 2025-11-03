@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from app.core.exceptions import AppException
+from app.models.post import Post
 from app.models.tag import Tag
 from app.models.user import User
 from app.utils.constants import NOT_FOUND_ERROR
@@ -81,4 +82,5 @@ class CommentIntegrityValidator(BaseIntegrityValidator):
 
     relations = [
         Relation(field="user_id", model=User, is_multiple=False),
+        Relation(field="post_id", model=Post, is_multiple=False),
     ]

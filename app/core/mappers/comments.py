@@ -15,5 +15,6 @@ class CommentMapper:
             "id": db_record.id,
             "content": db_record.content,
             "user_id": db_record.user_id,
+            "post_id": db_record.post_id,
         }
         return CommentOut.model_validate(data)

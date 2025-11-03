@@ -7,11 +7,12 @@ from app.services.comments import CommentService
 
 
 @pytest.mark.asyncio
-async def test_create(db, test_user):
+async def test_create(db, test_user, test_post):
     comment_service = CommentService(db=db)
     data = {
         "content": "This is a new comment",
         "user": test_user,
+        "post": test_post,
     }
     record = await comment_service.create(data=data)
 
