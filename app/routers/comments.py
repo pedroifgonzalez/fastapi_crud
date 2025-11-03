@@ -51,10 +51,10 @@ async def create_comment(
     integrity_validator: CommentIntegrityValidator = Depends(
         get_comment_integrity_validator
     ),
-    _: User = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ) -> CommentOut:
     await integrity_validator.validate(data.model_dump())
-    domain_data = await mapper.to_domain(data)
+    domain_data = await mapper.to_domain(data=data, user=user)
     db_record = await service.create(data=domain_data)
     return mapper.to_output(db_record=db_record)
 

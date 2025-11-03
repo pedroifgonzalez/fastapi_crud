@@ -35,27 +35,11 @@ async def test_comments_router_find_one(async_client, comment_id, expected_statu
         ),
         (
             {
-                "content": "This is a valid with missing user_id",
-                "post_id": 1,
-                # no user_id
-            },
-            422,
-        ),
-        (
-            {
                 "content": "This is a valid with missing post_id",
                 "user_id": 1,
                 # no post_id
             },
             422,
-        ),
-        (
-            {
-                "content": "This is a comment with non-existent user",
-                "user_id": 999,  # non-existent user
-                "post_id": 1,
-            },
-            404,
         ),
         (
             {
@@ -75,9 +59,7 @@ async def test_comments_router_find_one(async_client, comment_id, expected_statu
     ],
     ids=[
         "Valid comment",
-        "Missing user_id",
         "Missing post_id",
-        "Non existent user",
         "Non existent post",
         "Empty comment",
     ],

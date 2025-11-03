@@ -49,10 +49,10 @@ async def create_post(
     service: PostService = Depends(get_post_service),
     mapper: PostMapper = Depends(get_post_mapper),
     integrity_validator: PostIntegrityValidator = Depends(get_post_integrity_validator),
-    _: User = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ) -> PostOut:
     await integrity_validator.validate(data.model_dump())
-    domain_data = await mapper.to_domain(data)
+    domain_data = await mapper.to_domain(data=data, user=user)
     db_record = await service.create(data=domain_data)
     return mapper.to_output(db_record=db_record)
 

@@ -30,42 +30,27 @@ async def test_posts_router_find_one(async_client, post_id, expected_status):
     "data,expected_status",
     [
         (
-            {"content": "This is a valid post without tags", "user_id": 1},
+            {"content": "This is a valid post without tags"},
             200,
         ),
         (
-            {
-                "content": "This is a valid post with tags",
-                "user_id": 1,
-                "tags_ids": [1],
-            },
-            200,
+            {"tags_ids": [1]},
+            # missing content
+            422,
         ),
         (
-            {
-                "content": "This is a valid with missing user_id",
-                "tags_ids": [1],
-                # no user_id
-            },
+            {"content": "  "},
             422,
         ),
         (
             {
-                "content": "This is a valid post with tags",
-                "user_id": 999,  # non-existent user
-                "tags_ids": [1],
-            },
-            404,
-        ),
-        (
-            {
-                "content": "This is a valid post with tags",
-                "user_id": 1,
+                "content": "This is a post with invalid tags",
                 "tags_ids": [999],  # non-existent tag
             },
             404,
         ),
     ],
+    ids=["Valid post", "Missing content", "Empty content", "Invalid tags"],
 )
 async def test_posts_router_create(
     async_client, data, expected_status, generate_test_token
@@ -140,7 +125,7 @@ async def test_posts_router_update(
     "post_id,expected_status",
     [
         (1, 200),
-        (10, 200),
+        (10, 200),  # already deleted (silenced managed response)
         (999, 404),  # non-existent post
         (2, 404),  # non-owner post
     ],

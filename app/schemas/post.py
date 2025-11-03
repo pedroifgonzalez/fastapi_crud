@@ -13,8 +13,11 @@ class PostBase(BaseModel):
     )
 
 
-class PostIn(PostBase):
-    pass
+class PostIn(BaseModel):
+    content: NonEmptyString = Field(description="Post's content", min_length=10)
+    tags_ids: Optional[list[int]] = Field(
+        default=None, description="List of tags associated to this post"
+    )
 
 
 class PostUpdate(BaseModel):

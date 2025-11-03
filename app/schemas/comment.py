@@ -11,8 +11,9 @@ class CommentBase(BaseModel):
     post_id: int = Field(description="Post to be commented on")
 
 
-class CommentIn(CommentBase):
-    pass
+class CommentIn(BaseModel):
+    content: NonEmptyString = Field(description="Comment's content", min_length=10)
+    post_id: int = Field(description="Post to be commented on")
 
 
 class CommentUpdate(BaseModel):
