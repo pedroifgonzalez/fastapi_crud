@@ -33,9 +33,9 @@ async def test_update(db, test_comment):
 @pytest.mark.asyncio
 async def test_find_all(db, test_comment):
     comment_service = CommentService(db=db)
-    records = await comment_service.find_all()
+    records, total = await comment_service.find_all()
 
-    assert len(records) == 1
+    assert total == 1
     assert records[0].content == "This is a test comment"
 
 

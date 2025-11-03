@@ -7,8 +7,7 @@ COMMENTS_BASE_URL = "/comments"
 async def test_comments_router_find_all(async_client, test_comment):
     response = await async_client.get(f"{COMMENTS_BASE_URL}/")
     data = response.json()
-    assert isinstance(data, list)
-    assert len(data) > 0
+    assert data.get("total") > 0
 
 
 @pytest.mark.asyncio

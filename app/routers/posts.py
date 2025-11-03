@@ -13,18 +13,22 @@ from app.schemas.post import PostIn, PostOut, PostUpdate
 from app.services.posts import PostService
 from app.services.validators.business import BaseBusinessValidator
 from app.services.validators.integrity import PostIntegrityValidator
+from app.utils.pagination import PaginatedResponse, PaginationParams
 
 router = APIRouter()
 
 
-@router.get("/", response_model=list[PostOut])
+@router.get("/", response_model=PaginatedResponse[PostOut])
 async def get_all_posts(
     service: PostService = Depends(get_post_service),
     mapper: PostMapper = Depends(get_post_mapper),
-) -> list[PostOut]:
-    return [
-        mapper.to_output(db_record=db_record) for db_record in await service.find_all()
-    ]
+    pagination: PaginationParams = Depends(),
+) -> PaginatedResponse[PostOut]:
+    db_records, total = await service.find_all()
+    items = [mapper.to_output(db_record) for db_record in db_records]
+    return PaginatedResponse.create(
+        items=items, total=total, page=pagination.page, page_size=pagination.page_size
+    )
 
 
 @router.get("/{id}", response_model=PostOut)

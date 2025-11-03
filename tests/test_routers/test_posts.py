@@ -7,8 +7,7 @@ POSTS_BASE_URL = "/posts"
 async def test_posts_router_find_all(async_client, test_post):
     response = await async_client.get(f"{POSTS_BASE_URL}/")
     data = response.json()
-    assert isinstance(data, list)
-    assert len(data) > 0
+    assert data.get("total") > 0
 
 
 @pytest.mark.asyncio

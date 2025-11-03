@@ -11,19 +11,22 @@ from app.routers.dependencies import (
 from app.schemas.tag import TagIn, TagOut, TagUpdate
 from app.services.tags import TagsService
 from app.services.validators.business import BaseBusinessValidator
+from app.utils.pagination import PaginatedResponse, PaginationParams
 
 router = APIRouter()
 
 
-@router.get("/", response_model=list[TagOut])
+@router.get("/", response_model=PaginatedResponse[TagOut])
 async def get_all_tags(
     service: TagsService = Depends(get_tag_service),
     mapper: TagMapper = Depends(get_tag_mapper),
-) -> list[TagOut]:
-    return [
-        mapper.to_output(db_record=tag_record)
-        for tag_record in await service.find_all()
-    ]
+    pagination: PaginationParams = Depends(),
+) -> PaginatedResponse[TagOut]:
+    db_records, total = await service.find_all()
+    items = [mapper.to_output(db_record) for db_record in db_records]
+    return PaginatedResponse.create(
+        items=items, total=total, page=pagination.page, page_size=pagination.page_size
+    )
 
 
 @router.get("/{id}", response_model=TagOut)

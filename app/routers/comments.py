@@ -13,18 +13,22 @@ from app.schemas.comment import CommentIn, CommentOut, CommentUpdate
 from app.services.comments import CommentService
 from app.services.validators.business import BaseBusinessValidator
 from app.services.validators.integrity import CommentIntegrityValidator
+from app.utils.pagination import PaginatedResponse, PaginationParams
 
 router = APIRouter()
 
 
-@router.get("/", response_model=list[CommentOut])
+@router.get("/", response_model=PaginatedResponse[CommentOut])
 async def get_all_comments(
     service: CommentService = Depends(get_comment_service),
     mapper: CommentMapper = Depends(get_comment_mapper),
-) -> list[CommentOut]:
-    return [
-        mapper.to_output(db_record=db_record) for db_record in await service.find_all()
-    ]
+    pagination: PaginationParams = Depends(),
+) -> PaginatedResponse[CommentOut]:
+    db_records, total = await service.find_all()
+    items = [mapper.to_output(db_record) for db_record in db_records]
+    return PaginatedResponse.create(
+        items=items, total=total, page=pagination.page, page_size=pagination.page_size
+    )
 
 
 @router.get("/{id}", response_model=CommentOut)

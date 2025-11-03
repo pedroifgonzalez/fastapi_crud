@@ -8,8 +8,7 @@ TAGS_BASE_URL = "/tags"
 async def test_tags_router_find_all(async_client):
     response = await async_client.get(f"{TAGS_BASE_URL}/")
     data = response.json()
-    assert isinstance(data, list)
-    assert len(data) > 0
+    assert data.get("total") > 0
 
 
 @pytest.mark.asyncio

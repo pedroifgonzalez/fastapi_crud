@@ -32,9 +32,9 @@ async def test_update(db, test_tag):
 @pytest.mark.asyncio
 async def test_find_all(db, test_tag):
     tag_service = TagsService(db=db)
-    records = await tag_service.find_all()
+    records, total = await tag_service.find_all()
 
-    assert len(records) == 1
+    assert total == 1
     assert records[0].name == "TestTag"
 
 

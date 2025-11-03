@@ -4,11 +4,14 @@ from fastapi import status
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import Select
+from typing_extensions import Optional
 
 from app.core.exceptions import AppException
 from app.models.base import Base
 from app.utils.constants import NOT_FOUND_ERROR
+from app.utils.pagination import PaginationParams
 
 T = TypeVar("T", bound=Base)
 
@@ -35,15 +38,29 @@ class BaseService(Generic[T]):
 
         return stmt
 
-    async def find_all(self, eager_load: bool = True) -> list[T]:
+    async def find_all(
+        self, eager_load: bool = True, pagination: Optional[PaginationParams] = None
+    ) -> tuple[list[T], int]:
         """Get all records, optionally with relationships."""
         if eager_load and self._eager_load_relationships:
             stmt = self._get_select_with_relationships()
         else:
             stmt = select(self.model)
 
-        result = await self.db.execute(stmt)
-        return list(result.scalars().all())
+        total = None
+        if pagination:
+            total = await self.db.scalar(
+                select(func.count()).select_from(stmt.subquery())
+            )
+            result = await self.db.execute(
+                stmt.limit(pagination.page_size).offset(
+                    (pagination.page - 1) * pagination.page_size
+                )
+            )
+        else:
+            result = await self.db.execute(stmt)
+        output = list(result.scalars().all())
+        return output, total if total else len(output)
 
     async def find_one(self, id: int, eager_load: bool = True) -> Any | T:
         """Get a single record by ID, optionally with relationships."""

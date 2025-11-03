@@ -37,9 +37,9 @@ async def test_update(db, test_post):
 @pytest.mark.asyncio
 async def test_find_all(db, test_post):
     post_service = PostService(db=db)
-    records = await post_service.find_all()
+    records, total = await post_service.find_all()
 
-    assert len(records) == 1
+    assert total == 1
     assert records[0].content == "This is a test post"
 
 

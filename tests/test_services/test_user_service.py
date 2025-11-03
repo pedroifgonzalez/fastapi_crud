@@ -35,9 +35,9 @@ async def test_update(db, test_user):
 @pytest.mark.asyncio
 async def test_find_all(db, test_user):
     user_service = UserService(db=db)
-    records = await user_service.find_all()
+    records, total = await user_service.find_all()
 
-    assert len(records) == 1
+    assert total == 1
     assert records[0].name == "Jane Smith"
 
 
