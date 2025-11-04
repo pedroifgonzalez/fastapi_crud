@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
 
 from app.core.mappers.users import UserMapper
+from app.core.security.roles import UserRole
 from app.models.user import User
-from app.routers.dependencies import get_current_user
+from app.routers.dependencies.auth import require_roles
 from app.routers.dependencies.mappers import get_user_mapper
 from app.routers.dependencies.services import get_user_service
 from app.schemas.user import UserIn, UserOut, UserUpdate
@@ -17,6 +18,7 @@ async def get_all_users(
     service: UserService = Depends(get_user_service),
     mapper: UserMapper = Depends(get_user_mapper),
     pagination: PaginationParams = Depends(),
+    _: User = require_roles([UserRole.ADMIN]),
 ) -> PaginatedResponse[UserOut]:
     db_records, total = await service.find_all()
     items = [mapper.to_output(db_record) for db_record in db_records]
@@ -30,6 +32,7 @@ async def get_user(
     id: int,
     service: UserService = Depends(get_user_service),
     mapper: UserMapper = Depends(get_user_mapper),
+    _: User = require_roles([UserRole.ADMIN]),
 ) -> UserOut:
     db_record = await service.find_one(id=id)
     return mapper.to_output(db_record=db_record)
@@ -40,7 +43,7 @@ async def create_user(
     data: UserIn,
     service: UserService = Depends(get_user_service),
     mapper: UserMapper = Depends(get_user_mapper),
-    _: User = Depends(get_current_user),
+    _: User = require_roles([UserRole.ADMIN]),
 ) -> UserOut:
     domain_data = await mapper.to_domain(data=data)
     db_record = await service.create(data=domain_data)
@@ -53,7 +56,7 @@ async def update_user(
     data: UserUpdate,
     service: UserService = Depends(get_user_service),
     mapper: UserMapper = Depends(get_user_mapper),
-    _: User = Depends(get_current_user),
+    _: User = require_roles([UserRole.ADMIN]),
 ) -> UserOut:
     domain_data = await mapper.to_domain(data=data)
     db_record = await service.update(id=id, data=domain_data)
@@ -64,6 +67,6 @@ async def update_user(
 async def delete_user(
     id: int,
     service: UserService = Depends(get_user_service),
-    _: User = Depends(get_current_user),
+    _: User = require_roles([UserRole.ADMIN]),
 ) -> None:
     return await service.delete(id=id)

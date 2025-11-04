@@ -7,6 +7,7 @@ from app.main import app
 from app.models.base import metadata
 from app.routers.dependencies import get_db
 from tests.fixtures import (
+    test_admin_user,
     test_comment,
     test_comment_2,
     test_deleted_comment,
@@ -61,6 +62,7 @@ __all__ = [
     "test_user_2",
     "test_multiple_users",
     "test_deleted_user",
+    "test_admin_user",
     "test_post",
     "test_post_2",
     "test_tag",

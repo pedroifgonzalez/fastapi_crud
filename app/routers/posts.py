@@ -1,14 +1,15 @@
 from fastapi import APIRouter, Depends
 
 from app.core.mappers.posts import PostMapper
+from app.core.security.roles import UserRole
 from app.models.user import User
 from app.routers.dependencies import (
     get_business_validator,
-    get_current_user,
     get_post_integrity_validator,
     get_post_mapper,
     get_post_service,
 )
+from app.routers.dependencies.auth import require_roles
 from app.schemas.post import PostIn, PostOut, PostUpdate
 from app.services.posts import PostService
 from app.services.validators.business import BaseBusinessValidator
@@ -49,7 +50,7 @@ async def create_post(
     service: PostService = Depends(get_post_service),
     mapper: PostMapper = Depends(get_post_mapper),
     integrity_validator: PostIntegrityValidator = Depends(get_post_integrity_validator),
-    user: User = Depends(get_current_user),
+    user: User = require_roles([UserRole.REGULAR]),
 ) -> PostOut:
     await integrity_validator.validate(data.model_dump())
     domain_data = await mapper.to_domain(data=data, user=user)
@@ -64,7 +65,7 @@ async def update_post(
     service: PostService = Depends(get_post_service),
     mapper: PostMapper = Depends(get_post_mapper),
     integrity_validator: PostIntegrityValidator = Depends(get_post_integrity_validator),
-    user: User = Depends(get_current_user),
+    user: User = require_roles([UserRole.REGULAR]),
 ) -> PostOut:
     await integrity_validator.validate(data.model_dump())
     domain_data = await mapper.to_domain(data=data)
@@ -76,6 +77,6 @@ async def update_post(
 async def delete_post(
     id: int,
     service: PostService = Depends(get_post_service),
-    user: User = Depends(get_current_user),
+    user: User = require_roles([UserRole.REGULAR]),
 ) -> None:
     return await service.delete_for_user(id=id, user_id=user.id)

@@ -1,5 +1,6 @@
 import pytest
 
+from app.core.security.roles import UserRole
 from app.models.user import User
 from app.services.converters.passwords import PasswordConverter
 
@@ -18,6 +19,20 @@ async def test_user(db):
     await db.commit()
     await db.refresh(user_record)
     yield user_record
+
+
+@pytest.fixture(scope="function")
+async def test_admin_user(db):
+    admin_user_record = User(
+        name="Admin",
+        email="adminuser@gmail.com",
+        hashed_password=PASSWORD_HASHED,
+        role=UserRole.ADMIN.value,
+    )
+    db.add(admin_user_record)
+    await db.commit()
+    await db.refresh(admin_user_record)
+    yield admin_user_record
 
 
 @pytest.fixture(scope="function")

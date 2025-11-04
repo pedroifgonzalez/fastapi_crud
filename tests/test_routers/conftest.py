@@ -34,3 +34,17 @@ async def generate_test_token(test_user):
 
 def assert_output_schema(data, schema):
     assert schema.model_validate(data)
+
+
+@pytest.fixture(scope="function")
+async def generate_admin_test_token(test_admin_user):
+    token_manager = TokenManager(
+        expires_delta=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    token, _ = token_manager.generate_access_token(
+        data={
+            "sub": test_admin_user.email,
+            "exp": None,
+        }
+    )
+    yield token

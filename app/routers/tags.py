@@ -1,13 +1,14 @@
 from fastapi import APIRouter, Depends
 
 from app.core.mappers.tags import TagMapper
+from app.core.security.roles import UserRole
 from app.models.user import User
 from app.routers.dependencies import (
     get_business_validator,
-    get_current_user,
     get_tag_mapper,
     get_tag_service,
 )
+from app.routers.dependencies.auth import require_roles
 from app.schemas.tag import TagIn, TagOut, TagUpdate
 from app.services.tags import TagsService
 from app.services.validators.business import BaseBusinessValidator
@@ -46,7 +47,7 @@ async def create_tag(
     data: TagIn,
     service: TagsService = Depends(get_tag_service),
     mapper: TagMapper = Depends(get_tag_mapper),
-    _: User = Depends(get_current_user),
+    _: User = require_roles([UserRole.REGULAR]),
 ) -> TagOut:
     domain_data = await mapper.to_domain(data)
     db_record = await service.create(data=domain_data)
@@ -59,7 +60,7 @@ async def update_tag(
     data: TagUpdate,
     service: TagsService = Depends(get_tag_service),
     mapper: TagMapper = Depends(get_tag_mapper),
-    _: User = Depends(get_current_user),
+    _: User = require_roles([UserRole.REGULAR]),
 ) -> TagOut:
     domain_data = await mapper.to_domain(data=data)
     db_record = await service.update(id=id, data=domain_data)
@@ -70,6 +71,6 @@ async def update_tag(
 async def delete_tag(
     id: int,
     service: TagsService = Depends(get_tag_service),
-    _: User = Depends(get_current_user),
+    _: User = require_roles([UserRole.REGULAR]),
 ) -> None:
     return await service.delete(id=id)
