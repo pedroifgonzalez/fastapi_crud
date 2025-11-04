@@ -46,3 +46,13 @@ repos:
           - alembic>=1.12
           - types-requests
         args: ["--config-file=pyproject.toml"]
+  - repo: https://github.com/hadolint/hadolint
+    rev: v2.12.0
+    hooks:
+      - id: hadolint
+        files: Dockerfile
+  - repo: https://github.com/IamTheFij/docker-pre-commit
+    rev: v1.0.1
+    hooks:
+      - id: docker-compose-check
+        files: ^docker-compose.*\.yml$
