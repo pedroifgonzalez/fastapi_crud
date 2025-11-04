@@ -1,9 +1,11 @@
 import bcrypt
 
+from app.core.config import settings
+
 
 class PasswordConverter:
     def __init__(self) -> None:
-        self.rounds = 10
+        self.rounds = settings.BCRYPT_ROUNDS
 
     def to_hash(self, password: str) -> str:
         password_bytes = password.encode("utf-8")

@@ -24,7 +24,7 @@ class UserMapper:
             "id": db_record.id,
             "name": db_record.name,
             "email": db_record.email,
-            "posts": db_record.posts,  # type: ignore
-            "comments": db_record.comments,  # type: ignore
+            "posts": db_record.posts,
+            "comments": db_record.comments,
         }
         return UserOut.model_validate(data)

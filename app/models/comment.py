@@ -1,5 +1,5 @@
 from sqlalchemy import ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
 from app.models.mixin import SoftDeleteMixin, TimestampMixin
@@ -32,3 +32,5 @@ class Comment(Base, TimestampMixin, SoftDeleteMixin):
         nullable=False,
         index=True,
     )
+    user = relationship("User", back_populates="comments")
+    post = relationship("Post", back_populates="comments")

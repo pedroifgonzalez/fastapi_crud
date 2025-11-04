@@ -29,7 +29,11 @@ async def test_update(db, test_user):
     }
     record = await user_service.update(id=test_user.id, data=data)
 
+    await db.refresh(record)
+
     assert record.name == "Jane Chester"
+    updated_record = await user_service.find_one(id=record.id)
+    assert updated_record.created_at != updated_record.updated_at
 
 
 @pytest.mark.asyncio

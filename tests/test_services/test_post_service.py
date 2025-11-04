@@ -31,7 +31,11 @@ async def test_update(db, test_post):
     }
     record = await post_service.update(id=test_post.id, data=data)
 
+    await db.refresh(record)
+
     assert record.content == "This is a modified post content"
+    updated_record = await post_service.find_one(id=record.id)
+    assert updated_record.created_at != updated_record.updated_at
 
 
 @pytest.mark.asyncio

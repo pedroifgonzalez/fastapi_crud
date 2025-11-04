@@ -10,7 +10,7 @@ from app.routers.dependencies.security import get_token_manager
 from app.routers.dependencies.services import get_user_service
 from app.services.users import UserService
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 
 async def get_current_user(

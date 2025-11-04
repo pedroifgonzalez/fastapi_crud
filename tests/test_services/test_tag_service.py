@@ -26,7 +26,11 @@ async def test_update(db, test_tag):
     }
     record = await tag_service.update(id=test_tag.id, data=data)
 
+    await db.refresh(record)
+
     assert record.name == "ModifiedTag"
+    updated_record = await tag_service.find_one(id=record.id)
+    assert updated_record.created_at != updated_record.updated_at
 
 
 @pytest.mark.asyncio

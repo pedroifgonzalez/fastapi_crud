@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import AppException
 from app.models.user import User
 from app.services.base import BaseService, ServiceException
-from app.utils.constants import NOT_FOUND_ERROR
+from app.utils.constants import EMAIL_NOT_FOUND_ERROR
 
 
 class UserService(BaseService[User]):
@@ -26,6 +26,6 @@ class UserService(BaseService[User]):
         if not db_record:
             raise raise_custom or ServiceException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=NOT_FOUND_ERROR.format(self.model_name, id),
+                detail=EMAIL_NOT_FOUND_ERROR.format(email),
             )
         return db_record

@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.middlewares import RequestProcessTimeMiddleware
 from app.routers.auth import router as auth_router
@@ -10,6 +11,13 @@ app = FastAPI()
 
 # Add middlewares
 app.add_middleware(RequestProcessTimeMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Add routers
 app.include_router(posts_router, prefix="/posts", tags=["Posts"])

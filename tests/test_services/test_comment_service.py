@@ -27,7 +27,11 @@ async def test_update(db, test_comment):
     }
     record = await comment_service.update(id=test_comment.id, data=data)
 
+    await db.refresh(record)
+
     assert record.content == "Updated comment"
+    updated_record = await comment_service.find_one(id=record.id)
+    assert updated_record.created_at != updated_record.updated_at
 
 
 @pytest.mark.asyncio

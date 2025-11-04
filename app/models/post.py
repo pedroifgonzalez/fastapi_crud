@@ -22,3 +22,7 @@ class Post(Base, TimestampMixin, SoftDeleteMixin):
         index=True,
     )
     tags = relationship("Tag", secondary="posts_tags_link", back_populates="posts")
+    user = relationship("User", back_populates="posts")
+    comments = relationship(
+        "Comment", back_populates="post", cascade="all, delete-orphan"
+    )
