@@ -19,3 +19,16 @@ async def test_deleted_tag(db):
     await db.commit()
     await db.refresh(post_record)
     yield post_record
+
+
+@pytest.fixture(scope="function")
+async def test_multiple_tags(db):
+    number_of_tags = 30
+    tags = []
+    for number in range(1, number_of_tags):
+        tag = Tag(name="TestTag")
+        db.add(tag)
+        await db.commit()
+        await db.refresh(tag)
+        tags.append(tag)
+    yield tags

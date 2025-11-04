@@ -1,5 +1,10 @@
 import pytest
 
+from app.schemas.post import PostOut
+from app.utils.pagination import PaginatedResponse
+
+from .conftest import assert_output_schema
+
 POSTS_BASE_URL = "/posts"
 
 
@@ -8,6 +13,7 @@ async def test_posts_router_find_all(async_client, test_post):
     response = await async_client.get(f"{POSTS_BASE_URL}/")
     data = response.json()
     assert data.get("total") > 0
+    assert_output_schema(data=data, schema=PaginatedResponse[PostOut])
 
 
 @pytest.mark.asyncio
@@ -23,6 +29,9 @@ async def test_posts_router_find_all(async_client, test_post):
 async def test_posts_router_find_one(async_client, post_id, expected_status):
     response = await async_client.get(f"{POSTS_BASE_URL}/{post_id}")
     assert response.status_code == expected_status
+    if expected_status == 200:
+        data = response.json()
+        assert_output_schema(data=data, schema=PostOut)
 
 
 @pytest.mark.usefixtures("test_user", "test_tag")
@@ -61,6 +70,9 @@ async def test_posts_router_create(
         headers={"Authorization": f"Bearer {generate_test_token}"},
     )
     assert response.status_code == expected_status
+    if expected_status == 200:
+        data = response.json()
+        assert_output_schema(data=data, schema=PostOut)
 
 
 @pytest.mark.usefixtures("test_post", "test_post_2", "test_tag")
@@ -118,6 +130,9 @@ async def test_posts_router_update(
         headers={"Authorization": f"Bearer {generate_test_token}"},
     )
     assert response.status_code == expected_status
+    if expected_status == 200:
+        data = response.json()
+        assert_output_schema(data=data, schema=PostOut)
 
 
 @pytest.mark.usefixtures("test_post", "test_deleted_post", "test_post_2")

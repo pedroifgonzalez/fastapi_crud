@@ -2,6 +2,10 @@ import pytest
 from sqlalchemy import select
 
 from app.models.user import User
+from app.schemas.auth import AccessToken
+from app.schemas.user import UserOut
+
+from .conftest import assert_output_schema
 
 AUTH_BASE_URL = "/auth"
 
@@ -61,6 +65,8 @@ async def test_auth_signup(async_client, db, data, expected_status):
     response_status_code = response.status_code
     assert response_status_code == expected_status
     if response_status_code == 200:
+        assert_output_schema(data=response.json(), schema=UserOut)
+
         result = await db.execute(select(User).where(User.email == data.get("email")))
         db_record = result.scalar_one_or_none()
         assert db_record
@@ -95,7 +101,6 @@ async def test_auth_login(async_client, data, expected_status):
     assert response.status_code == expected_status
     data = response.json()
     if response.status_code == 200:
-        assert "access_token" in data
-        assert "token_type" in data
+        assert_output_schema(data=response.json(), schema=AccessToken)
     else:
         assert data["detail"] == "Incorrect username or password"

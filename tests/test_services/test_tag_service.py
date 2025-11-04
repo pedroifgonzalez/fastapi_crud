@@ -5,6 +5,7 @@ from app.core.config import settings
 from app.models.tag import Tag
 from app.services.base import ServiceException
 from app.services.tags import TagsService
+from app.utils.pagination import PaginationParams
 
 
 @pytest.mark.asyncio
@@ -53,6 +54,28 @@ async def test_find_all(db, test_tag):
 
     assert total == 1
     assert records[0].name == "TestTag"
+
+
+@pytest.mark.asyncio
+async def test_find_all_pagination(db, test_multiple_tags):
+    tag_service = TagsService(db=db)
+    records, total = await tag_service.find_all()
+    pagination = PaginationParams(page=1, page_size=2)
+    records_with_pagination, total_with_pagination = await tag_service.find_all(
+        pagination=pagination
+    )
+
+    assert total_with_pagination == len(test_multiple_tags) == total
+    start = (pagination.page - 1) * pagination.page_size
+    end = start + pagination.page_size
+    assert records_with_pagination == records[start:end]
+
+    pagination2 = PaginationParams(page=2, page_size=2)
+    records_page2, _ = await tag_service.find_all(pagination=pagination2)
+
+    start2 = (pagination2.page - 1) * pagination2.page_size
+    end2 = start2 + pagination2.page_size
+    assert records_page2 == records[start2:end2]
 
 
 @pytest.mark.asyncio

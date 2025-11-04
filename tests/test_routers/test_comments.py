@@ -1,5 +1,10 @@
 import pytest
 
+from app.schemas.comment import CommentOut
+from app.utils.pagination import PaginatedResponse
+
+from .conftest import assert_output_schema
+
 COMMENTS_BASE_URL = "/comments"
 
 
@@ -8,6 +13,7 @@ async def test_comments_router_find_all(async_client, test_comment):
     response = await async_client.get(f"{COMMENTS_BASE_URL}/")
     data = response.json()
     assert data.get("total") > 0
+    assert_output_schema(data=data, schema=PaginatedResponse[CommentOut])
 
 
 @pytest.mark.asyncio
@@ -23,6 +29,9 @@ async def test_comments_router_find_all(async_client, test_comment):
 async def test_comments_router_find_one(async_client, comment_id, expected_status):
     response = await async_client.get(f"{COMMENTS_BASE_URL}/{comment_id}")
     assert response.status_code == expected_status
+    if expected_status == 200:
+        data = response.json()
+        assert_output_schema(data=data, schema=CommentOut)
 
 
 @pytest.mark.usefixtures("test_user", "test_post")
@@ -122,6 +131,9 @@ async def test_comments_router_update(
         headers={"Authorization": f"Bearer {generate_test_token}"},
     )
     assert response.status_code == expected_status
+    if expected_status == 200:
+        data = response.json()
+        assert_output_schema(data=data, schema=CommentOut)
 
 
 @pytest.mark.usefixtures("test_comment", "test_deleted_comment", "test_comment_2")

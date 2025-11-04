@@ -1,5 +1,10 @@
 import pytest
 
+from app.schemas.tag import TagOut
+from app.utils.pagination import PaginatedResponse
+
+from .conftest import assert_output_schema
+
 TAGS_BASE_URL = "/tags"
 
 
@@ -9,6 +14,7 @@ async def test_tags_router_find_all(async_client):
     response = await async_client.get(f"{TAGS_BASE_URL}/")
     data = response.json()
     assert data.get("total") > 0
+    assert_output_schema(data=data, schema=PaginatedResponse[TagOut])
 
 
 @pytest.mark.asyncio
@@ -24,6 +30,9 @@ async def test_tags_router_find_all(async_client):
 async def test_tags_router_find_one(async_client, tag_id, expected_status):
     response = await async_client.get(f"{TAGS_BASE_URL}/{tag_id}")
     assert response.status_code == expected_status
+    if expected_status == 200:
+        data = response.json()
+        assert_output_schema(data=data, schema=TagOut)
 
 
 @pytest.mark.usefixtures("test_user", "test_tag")
@@ -40,6 +49,9 @@ async def test_tags_router_create(
         headers={"Authorization": f"Bearer {generate_test_token}"},
     )
     assert response.status_code == expected_status
+    if expected_status == 200:
+        data = response.json()
+        assert_output_schema(data=data, schema=TagOut)
 
 
 @pytest.mark.usefixtures("test_tag", "test_tag")
@@ -60,6 +72,9 @@ async def test_tags_router_update(
         headers={"Authorization": f"Bearer {generate_test_token}"},
     )
     assert response.status_code == expected_status
+    if expected_status == 200:
+        data = response.json()
+        assert_output_schema(data=data, schema=TagOut)
 
 
 @pytest.mark.usefixtures("test_tag", "test_deleted_tag")

@@ -30,3 +30,7 @@ async def generate_test_token(test_user):
         }
     )
     yield token
+
+
+def assert_output_schema(data, schema):
+    assert schema.model_validate(data)

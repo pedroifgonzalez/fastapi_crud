@@ -43,9 +43,6 @@ class BaseIntegrityValidator:
                         detail=f"Expected iterable for field '{field_name}'",
                     )
                 ids: Sequence[int] = list(value)
-                if not ids:
-                    continue
-
                 stmt = select(relation.model.id).where(relation.model.id.in_(ids))
                 result = await self.db.execute(stmt)
                 existing_ids = set(result.scalars().all())

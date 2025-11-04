@@ -31,3 +31,20 @@ async def test_user_2(db):
     await db.commit()
     await db.refresh(user_2_record)
     yield user_2_record
+
+
+@pytest.fixture(scope="function")
+async def test_multiple_users(db):
+    number_of_users = 30
+    users = []
+    for number in range(1, number_of_users):
+        user = User(
+            name=f"User {number}",
+            email=f"user{number}@gmail.com",
+            hashed_password=PASSWORD_HASHED,
+        )
+        db.add(user)
+        await db.commit()
+        await db.refresh(user)
+        users.append(user)
+    yield users
