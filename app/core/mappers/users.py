@@ -1,5 +1,7 @@
+from typing_extensions import Union
+
 from app.models.user import User
-from app.schemas.user import UserIn, UserOut
+from app.schemas.user import UserIn, UserOut, UserUpdate
 from app.services.converters.passwords import PasswordConverter
 
 
@@ -8,15 +10,16 @@ class UserMapper:
     def __init__(self, password_converter: PasswordConverter) -> None:
         self.password_converter = password_converter
 
-    async def to_domain(self, data: UserIn) -> dict:
+    async def to_domain(self, data: Union[UserIn, UserUpdate]) -> dict:
         domain_data = data.model_dump(exclude_none=True)
-        domain_data.update(
-            {
-                "hashed_password": self.password_converter.to_hash(
-                    password=domain_data.pop("password")
-                )
-            }
-        )
+        if domain_data.get("password"):
+            domain_data.update(
+                {
+                    "hashed_password": self.password_converter.to_hash(
+                        password=domain_data.pop("password")
+                    )
+                }
+            )
         return domain_data
 
     def to_output(self, db_record: User) -> UserOut:

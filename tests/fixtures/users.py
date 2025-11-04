@@ -21,6 +21,21 @@ async def test_user(db):
 
 
 @pytest.fixture(scope="function")
+async def test_deleted_user(db):
+    deleted_user_record = User(
+        id=10,
+        name="Deleted User",
+        email="deleteduser@gmail.com",
+        hashed_password=PASSWORD_HASHED,
+        is_deleted=True,
+    )
+    db.add(deleted_user_record)
+    await db.commit()
+    await db.refresh(deleted_user_record)
+    yield deleted_user_record
+
+
+@pytest.fixture(scope="function")
 async def test_user_2(db):
     user_2_record = User(
         name="Ethan Smith",
