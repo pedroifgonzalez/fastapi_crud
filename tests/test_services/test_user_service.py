@@ -1,6 +1,7 @@
 import pytest
 from sqlalchemy import select
 
+from app.core.config import settings
 from app.models.user import User
 from app.services.base import ServiceException
 from app.services.users import UserService
@@ -28,10 +29,21 @@ async def test_update(db, test_user):
         "name": "Jane Chester",
     }
     record = await user_service.update(id=test_user.id, data=data)
+    updated_record = await user_service.find_one(id=record.id)
+    assert updated_record.name == "Jane Chester"
 
-    await db.refresh(record)
 
-    assert record.name == "Jane Chester"
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    "sqlite" in settings.DATABASE_URL,
+    reason="SQLite does not reflect fast the updated_at",
+)
+async def test_updated_at(db, test_user):
+    user_service = UserService(db=db)
+    data = {
+        "name": "Jane Chester",
+    }
+    record = await user_service.update(id=test_user.id, data=data)
     updated_record = await user_service.find_one(id=record.id)
     assert updated_record.created_at != updated_record.updated_at
 

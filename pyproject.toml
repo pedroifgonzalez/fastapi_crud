@@ -20,6 +20,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "aiosqlite>=0.21.0",
     "coverage[toml]==7.11",
     "greenlet>=3.2.4",
     "pre-commit>=4.3.0",

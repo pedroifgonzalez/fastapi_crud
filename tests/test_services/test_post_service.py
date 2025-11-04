@@ -1,6 +1,7 @@
 import pytest
 from sqlalchemy import select
 
+from app.core.config import settings
 from app.models.post import Post
 from app.services.base import ServiceException
 from app.services.posts import PostService
@@ -30,10 +31,21 @@ async def test_update(db, test_post):
         "content": "This is a modified post content",
     }
     record = await post_service.update(id=test_post.id, data=data)
+    updated_record = await post_service.find_one(id=record.id)
+    assert updated_record.content == "This is a modified post content"
 
-    await db.refresh(record)
 
-    assert record.content == "This is a modified post content"
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    "sqlite" in settings.DATABASE_URL,
+    reason="SQLite does not reflect fast the updated_at",
+)
+async def test_updated_at(db, test_post):
+    post_service = PostService(db=db)
+    data = {
+        "content": "Updated comment",
+    }
+    record = await post_service.update(id=test_post.id, data=data)
     updated_record = await post_service.find_one(id=record.id)
     assert updated_record.created_at != updated_record.updated_at
 

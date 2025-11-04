@@ -1,6 +1,7 @@
 import pytest
 from sqlalchemy import select
 
+from app.core.config import settings
 from app.models.tag import Tag
 from app.services.base import ServiceException
 from app.services.tags import TagsService
@@ -25,10 +26,22 @@ async def test_update(db, test_tag):
         "name": "ModifiedTag",
     }
     record = await tag_service.update(id=test_tag.id, data=data)
+    updated_record = await tag_service.find_one(id=record.id)
+    assert updated_record.name == "ModifiedTag"
 
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    "sqlite" in settings.DATABASE_URL,
+    reason="SQLite does not reflect fast the updated_at",
+)
+async def test_updated_at(db, test_tag):
+    tag_service = TagsService(db=db)
+    data = {
+        "name": "ModifiedTag",
+    }
+    record = await tag_service.update(id=test_tag.id, data=data)
     await db.refresh(record)
-
-    assert record.name == "ModifiedTag"
     updated_record = await tag_service.find_one(id=record.id)
     assert updated_record.created_at != updated_record.updated_at
 

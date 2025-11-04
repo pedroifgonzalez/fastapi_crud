@@ -1,6 +1,7 @@
 import pytest
 from sqlalchemy import select
 
+from app.core.config import settings
 from app.models.comment import Comment
 from app.services.base import ServiceException
 from app.services.comments import CommentService
@@ -25,12 +26,23 @@ async def test_update(db, test_comment):
     data = {
         "content": "Updated comment",
     }
-    record = await comment_service.update(id=test_comment.id, data=data)
+    await comment_service.update(id=test_comment.id, data=data)
+    updated_record = await comment_service.find_one(id=test_comment.id)
+    assert updated_record.content == "Updated comment"
 
-    await db.refresh(record)
 
-    assert record.content == "Updated comment"
-    updated_record = await comment_service.find_one(id=record.id)
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    "sqlite" in settings.DATABASE_URL,
+    reason="SQLite does not reflect fast the updated_at",
+)
+async def test_updated_at(db, test_comment):
+    comment_service = CommentService(db=db)
+    data = {
+        "content": "Updated comment",
+    }
+    await comment_service.update(id=test_comment.id, data=data)
+    updated_record = await comment_service.find_one(id=test_comment.id)
     assert updated_record.created_at != updated_record.updated_at
 
 
