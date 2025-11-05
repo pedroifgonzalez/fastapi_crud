@@ -18,9 +18,15 @@ class UserService(BaseService[User]):
         super().__init__(db, User)
 
     async def find_by_email(
-        self, email: str, raise_custom: Optional[AppException] = None
+        self,
+        email: str,
+        raise_custom: Optional[AppException] = None,
+        include_deleted: bool = False,
     ) -> User:
         stmt = select(User).where(User.email == email)
+        stmt = self._apply_soft_delete_filter(
+            stmt=stmt, include_deleted=include_deleted
+        )
         result = await self.db.execute(stmt)
         db_record = result.scalar_one_or_none()
         if not db_record:
