@@ -44,7 +44,7 @@ validations in the `utils` folder.
 To run the FastAPI app, you need to install the uv package
 manager and for getting all the dependencies run:
 
-Create a new Python environment:
+Create a new Python virtual environment:
 
 ```bash
 python -m venv .venv
