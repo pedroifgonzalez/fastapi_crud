@@ -2,11 +2,24 @@
 
 ## Welcome to a simple but curated FastAPI CRUD example app
 
+## Features
+
+- 🔐 **OAuth2 + JWT Authentication** with role-based access control
+- 🗃️ **Async SQLAlchemy** with PostgreSQL support
+- 🔄 **Soft Delete** pattern with flexible filtering
+- 📊 **Pagination** support for list endpoints
+- ✅ **Pydantic v2** validation with custom validators
+- 🐳 **Docker** deployment ready
+- 🧪 **90%+ test coverage** with pytest
+- ⚡ **Request timing** middleware
+
 ### Table of Contents
 
-- Project structure
-- Set up and run the app
-- Run tests
+- [Features](#features)
+- [Project structure](#project-structure)
+- [Set up and run the app](#setup-and-run-app)
+- [Run tests](#run-tests)
+- [Docker Deployment](#docker-deployment)
 
 ## Project Structure
 
@@ -31,20 +44,26 @@ validations in the `utils` folder.
 To run the FastAPI app, you need to install the uv package
 manager and for getting all the dependencies run:
 
-```uv sync```
+```bash
+uv sync
+```
 
 Also, it is important to have the required environment variables. You can
 copy the `.env.example` file and customize it for your local
 development:
 
-```cp .env.example .env```
+```bash
+cp .env.example .env
+```
 
 > [!WARNING]
 > Configure variables before continuing
 
 Now, you can run the app, which, as it is a typical FastAPI app, you can run with:
 
-```uv run uvicorn app.main:app --reload```
+```bash
+uv run uvicorn app.main:app --reload
+```
 
 ## Run tests
 
@@ -52,4 +71,33 @@ Once you have achieved running the app, you can run the tests to ensure
 everything is correct. Also serves as a guard for any new changes and
 detects any code that could break the app:
 
-```uv run pytest```
+```bash
+uv run pytest
+```
+
+## Docker Deployment
+
+Using Docker Compose
+Start all services (PostgreSQL, API, Adminer):
+
+```bash
+docker compose up -d
+```
+
+View logs:
+
+```bash
+docker compose logs -f api
+```
+
+Stop services:
+
+```bash
+docker compose down
+```
+
+Build:
+
+```bash
+docker compose build
+```
