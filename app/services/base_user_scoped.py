@@ -10,12 +10,17 @@ from app.utils.constants import NOT_FOUND_ERROR
 
 class UserScopedBaseService(BaseService[T], UserScopedServiceMixin):
     async def find_one_for_user(
-        self, id: int, user_id: int, eager_load: bool = True
+        self,
+        id: int,
+        user_id: int,
+        eager_load: bool = True,
+        include_deleted: bool = False,
     ) -> T:
         if eager_load:
-            stmt = self._get_select_with_relationships().where(self.model.id == id)  # type: ignore
+            stmt = self._get_select_with_relationships(include_deleted=include_deleted).where(self.model.id == id)  # type: ignore
         else:
-            stmt = select(self.model)
+            stmt = select(self.model).where(self.model.id == id)  # type: ignore
+            stmt = self._apply_soft_delete_filter(stmt, include_deleted=include_deleted)
 
         stmt = await self._apply_user_scope(stmt, user_id)
 
@@ -42,7 +47,9 @@ class UserScopedBaseService(BaseService[T], UserScopedServiceMixin):
         return await self.find_one_for_user(id=id, user_id=user_id)
 
     async def delete_for_user(self, id: int, user_id: int) -> None:
-        db_record = await self.find_one_for_user(id=id, user_id=user_id)
+        db_record = await self.find_one_for_user(
+            id=id, user_id=user_id, include_deleted=True
+        )
 
         stmt = (
             update(self.model)

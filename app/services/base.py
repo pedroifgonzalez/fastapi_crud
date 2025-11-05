@@ -11,6 +11,7 @@ from typing_extensions import Optional
 
 from app.core.exceptions import AppException
 from app.models.base import Base
+from app.services.mixin import SoftDeleteFilterMixin
 from app.utils.constants import NOT_FOUND_ERROR
 from app.utils.pagination import PaginationParams
 
@@ -21,7 +22,7 @@ class ServiceException(AppException):
     pass
 
 
-class BaseService(Generic[T]):
+class BaseService(Generic[T], SoftDeleteFilterMixin):
     _eager_load_relationships: list[str] = []
 
     def __init__(self, db: AsyncSession, model: Type[T]):
@@ -29,10 +30,12 @@ class BaseService(Generic[T]):
         self.model = model
         self.model_name = model.__name__
 
-    def _get_select_with_relationships(self) -> Select[tuple[T]]:
+    def _get_select_with_relationships(
+        self, include_deleted: bool = False
+    ) -> Select[tuple[T]]:
         """Build select statement with eager loading."""
         stmt = select(self.model)
-
+        stmt = self._apply_soft_delete_filter(stmt, include_deleted=include_deleted)
         for rel in self._eager_load_relationships:
             if hasattr(self.model, rel):
                 stmt = stmt.options(selectinload(getattr(self.model, rel)))
@@ -51,13 +54,17 @@ class BaseService(Generic[T]):
         return result, total
 
     async def find_all(
-        self, eager_load: bool = True, pagination: Optional[PaginationParams] = None
+        self,
+        eager_load: bool = True,
+        pagination: Optional[PaginationParams] = None,
+        include_deleted: bool = False,
     ) -> tuple[list[T], int]:
         """Get all records, optionally with relationships."""
         if eager_load and self._eager_load_relationships:
-            stmt = self._get_select_with_relationships()
+            stmt = self._get_select_with_relationships(include_deleted=include_deleted)
         else:
             stmt = select(self.model)
+            stmt = self._apply_soft_delete_filter(stmt, include_deleted=include_deleted)
 
         total = None
         if pagination:
@@ -69,14 +76,19 @@ class BaseService(Generic[T]):
         output = list(result.scalars().all())
         return output, total if total else len(output)
 
-    async def find_one(self, id: int, eager_load: bool = True) -> Any | T:
+    async def find_one(
+        self, id: int, eager_load: bool = True, include_deleted: bool = False
+    ) -> Any | T:
         """Get a single record by ID, optionally with relationships."""
         if eager_load and self._eager_load_relationships:
-            stmt = self._get_select_with_relationships().where(self.model.id == id)  # type: ignore
+            stmt = self._get_select_with_relationships(include_deleted=include_deleted).where(self.model.id == id)  # type: ignore
             result = await self.db.execute(stmt)
             db_record = result.scalar_one_or_none()
         else:
-            db_record = await self.db.get(self.model, id)
+            stmt = select(self.model).where(self.model.id == id)  # type: ignore
+            stmt = self._apply_soft_delete_filter(stmt, include_deleted=include_deleted)
+            result = await self.db.execute(stmt)
+            db_record = result.scalar_one_or_none()
 
         if not db_record:
             raise ServiceException(
@@ -104,7 +116,7 @@ class BaseService(Generic[T]):
         return await self.find_one(id=id)
 
     async def delete(self, id: int) -> None:
-        db_record = await self.find_one(id=id, eager_load=False)
+        db_record = await self.find_one(id=id, eager_load=False, include_deleted=True)
 
         stmt = (
             update(self.model)

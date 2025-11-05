@@ -20,7 +20,7 @@ async def get_all_users(
     pagination: PaginationParams = Depends(),
     _: User = require_roles([UserRole.ADMIN]),
 ) -> PaginatedResponse[UserOut]:
-    db_records, total = await service.find_all()
+    db_records, total = await service.find_all(include_deleted=True)
     items = [mapper.to_output(db_record) for db_record in db_records]
     return PaginatedResponse.create(
         items=items, total=total, page=pagination.page, page_size=pagination.page_size
@@ -34,7 +34,7 @@ async def get_user(
     mapper: UserMapper = Depends(get_user_mapper),
     _: User = require_roles([UserRole.ADMIN]),
 ) -> UserOut:
-    db_record = await service.find_one(id=id)
+    db_record = await service.find_one(id=id, include_deleted=True)
     return mapper.to_output(db_record=db_record)
 
 
